@@ -10,6 +10,8 @@ After 5 minutes comments on posts that do not have link flair.
 
 If a user replies to the comment with a valid flair choice that flair is added to the post.
 
+If a post is flaired, removes own comment and all replies.
+
 After one hour removes posts that are not flaired.
 
 After one day removes posts that have not been cleared.
