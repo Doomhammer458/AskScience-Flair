@@ -107,13 +107,15 @@ def add_new_items_to_db(session):
                     approved=True
                 print(post.title)
                 post.title = post.title.encode('ascii',errors='ignore')
-                db_add = Posts(post_id = post.id,created_utc = post.created_utc,approved = approved,removed=removed,\
-                flair_text = post.link_flair_text, flair_css_class = post.link_flair_css_class, author=post.author.name,\
+                db_add = Posts(post_id = post.id,created_utc = post.created_utc,\
+                approved = approved,removed=removed, flair_text = post.link_flair_text,\
+                flair_css_class = post.link_flair_css_class, author=post.author.name,\
                 title = post.title)
-                flair_comment = "Hi {}, if your post is not flaired it will not be reviewed.  Please add flair to your post. \n \n \
+                flair_comment = "Hi {}, if your post is not flaired it will not be reviewed. \
+   Please add flair to your post. \n \n \
 Your post will be removed permanently  if flair is not added within one hour \n\n\
-*This message was automatic. If you need assistance, please \
- [message the mods](http://www.reddit.com/message/compose?to=%2Fr%2FAskScience&amp;message=My%20Post:%20http://redd.it/{}).*\n\n\
+*This message was automatic. If you need assistance, please [message the mods]\
+(http://www.reddit.com/message/compose?to=%2Fr%2FAskScience&amp;message=My%20Post:%20http://redd.it/{}).*\n\n\
 You can flair this post by replying to this message with  your  flair choice. \
  It must be an exact match to one of the flair categories listed on the sidebar and contain no other text."\
 .format(post.author.name,post.id)
@@ -128,22 +130,21 @@ def check_flair(list_of_posts,session):
     for post in list_of_posts:
         submission = r.get_submission(submission_id=post.post_id)
         if submission.banned_by !=True and submission.banned_by != None:
-            print(type(submission.banned_by))
-            print (submission.banned_by)
             post.removed = True
         if submission.approved_by:
             post.approved=True
         post.flair_text = submission.link_flair_text
         post.flair_css_class = submission.link_flair_css_class
+        me = r.get_me()
+        #check new posts for flair and removed self posted comments
         if submission.link_flair_text or submission.link_flair_css_class:
-            me = r.get_me()
             for comment in submission.comments:
                 if comment.author.name == me.name:
                     print("removing self comment {}".format(submission.id))
                     comment.remove()
+        #check for text replies and flair posts based on replies
         else:
             for comment in submission.comments:
-                me = r.get_me()
                 if comment.author.name == me.name:
                     for reply in comment.replies:
                         reply_body = reply.body
@@ -231,7 +232,8 @@ if __name__ == "__main__":
     session = create_session()
     print("\nRemoving not approved posts older than 24 hours\n")
     unapproved_posts = session.query(Posts)\
-    .filter(and_(now - Posts.created_utc > 60*60*hours_before_autoremove,Posts.approved==False,Posts.removed==False)).all()
+    .filter(and_(now - Posts.created_utc > 60*60*hours_before_autoremove,\
+    Posts.approved==False,Posts.removed==False)).all()
     remove_posts(unapproved_posts,session)
     print("commiting to DB") 
     session.commit()
