@@ -7,6 +7,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy import and_
 import time
 import os
+import urllib
 Base = declarative_base()
 
 ########## SETTINGS SECTION############
@@ -111,18 +112,34 @@ def add_new_items_to_db(session):
                 approved = approved,removed=removed, flair_text = post.link_flair_text,\
                 flair_css_class = post.link_flair_css_class, author=post.author.name,\
                 title = post.title)
-                flair_comment = "Hi {}, if your post is not flaired it will not be reviewed. \
+                intro = "Hi {} thank you for submitting to /r/Askscience.\n\n".format(post.author.name)
+                rules_pm = """ Your post is not yet visible on the forum and is awaiting review from the moderator team. Your question may be denied for the following reasons, \n\n 
+* **Have you searched for your question on** [**AskScience**](https://www.reddit.com/r/askscience/search?q={title} &sort=relevance&restrict_sr=on&t=all) **or on** \
+ [**Google**](https://www.google.com/search?q={title})**?** - Common questions, or questions covered in the [**FAQ**](https://www.reddit.com/r/askscience/wiki/faq), will be rejected.
+* **Are you asking for** [**medical advice**](http://redd.it/s4chc) **or does your post contain personal medical information?** - These questions, even innocuous ones should be between you and your doctor.
+* **Is your post speculative or hypothetical?** - Questions involving unphysical what ifs or imaginary situations requiring guesses and speculation are best for /r/AskScienceDiscussion. \n
+There are more restrictions on what kind of questions are suitable for /r/AskScience, the above are just some of the most common. While you wait, check out the forum 
+[**Posting Guidelines**](https://www.reddit.com/r/askscience/wiki/quickstart/askingquestions) on asking questions as well as our [**User Help Page**](https://www.reddit.com/r/askscience/wiki/index#wiki_askscience_user_help_page). \
+Please wait several hours before messaging us if there is an issue, moderator mail concerning recent submissions will be ignored.\n\n\
+""".format(title = urllib.parse.quote(post.title))
+                flair_comment = "If your post is not flaired it will not be reviewed. \
    Please add flair to your post. \n \n \
 Your post will be removed permanently  if flair is not added within one hour \n\n\
-*This message was automatic. If you need assistance, please [message the mods]\
-(http://www.reddit.com/message/compose?to=%2Fr%2FAskScience&amp;message=My%20Post:%20http://redd.it/{}).*\n\n\
 You can flair this post by replying to this message with  your  flair choice. \
- It must be an exact match to one of the flair categories listed on the sidebar and contain no other text."\
-.format(post.author.name,post.id)
+ It must be an exact match to one of the following flair categories and contain no other text:\n\n\
+ 'Computing', 'Economics', 'Human Body', 'Engineering', 'Planetary Sci.', 'Archaeology', 'Neuroscience',\
+ 'Biology', 'Chemistry', 'Medicine', 'Linguistics', 'Mathematics', 'Astronomy', 'Psychology',\
+ 'Paleontology', 'Political Science', 'Social Science', 'Earth Sciences', 'Anthropology', 'Physics'\n\n"
+                bot_message = "I am a bot, and this action was performed automatically.\
+Please contact the [moderators of this subreddit](http://www.reddit.com/message/compose?\
+to=%2Fr%2FAskScience&amp;message=My%20Post:%20http://redd.it/{}) if you have any questions or concerns"\
+.format(post.id)
                 if not post.link_flair_text:
                     print("added flair comment: {}".format(post.id))
-                    comment = post.add_comment(flair_comment)
-                    comment.distinguish() 
+                    comment = post.add_comment(intro+flair_comment+rules_pm+bot_message)
+                    comment.distinguish()
+                else:
+                    r.send_message(post.author.name,"Welcome to /r/askScience!",intro+rules_pm+bot_message)
                 session.add(db_add)            
     return session
     
@@ -151,7 +168,12 @@ def check_flair(list_of_posts,session):
                         print("reply: {}".format(reply_body))
                         if reply_body:
                             word = reply_body.title().strip()
+                            if word.startswith("'"):
+                                word = word[1:]
+                            if word.endswith("'"):
+                                word = word[:-1]
                             print(word)
+                            print (word in science_flair_dict.keys())
                             if word in science_flair_dict.keys():
                                 print("adding flair")
                                 print(submission.id)
