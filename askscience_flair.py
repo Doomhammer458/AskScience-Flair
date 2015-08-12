@@ -121,18 +121,19 @@ def add_new_items_to_db(session):
 There are more restrictions on what kind of questions are suitable for /r/AskScience, the above are just some of the most common. While you wait, check out the forum 
 [**Posting Guidelines**](https://www.reddit.com/r/askscience/wiki/quickstart/askingquestions) on asking questions as well as our [**User Help Page**](https://www.reddit.com/r/askscience/wiki/index#wiki_askscience_user_help_page). \
 Please wait several hours before messaging us if there is an issue, moderator mail concerning recent submissions will be ignored.\n\n\
-""".format(title = urllib.parse.quote(post.title))
-                flair_comment = "If your post is not flaired it will not be reviewed. \
+___\n\n""".format(title = urllib.parse.quote(post.title))
+                flair_comment = "**If your post is not flaired it will not be reviewed.** \
    Please add flair to your post. \n \n \
-Your post will be removed permanently  if flair is not added within one hour \n\n\
+Your post will be removed permanently if flair is not added within one hour. \
 You can flair this post by replying to this message with  your  flair choice. \
  It must be an exact match to one of the following flair categories and contain no other text:\n\n\
  'Computing', 'Economics', 'Human Body', 'Engineering', 'Planetary Sci.', 'Archaeology', 'Neuroscience',\
  'Biology', 'Chemistry', 'Medicine', 'Linguistics', 'Mathematics', 'Astronomy', 'Psychology',\
- 'Paleontology', 'Political Science', 'Social Science', 'Earth Sciences', 'Anthropology', 'Physics'\n\n"
-                bot_message = "I am a bot, and this action was performed automatically.\
-Please contact the [moderators of this subreddit](http://www.reddit.com/message/compose?\
-to=%2Fr%2FAskScience&amp;message=My%20Post:%20http://redd.it/{}) if you have any questions or concerns"\
+ 'Paleontology', 'Political Science', 'Social Science', 'Earth Sciences', 'Anthropology', 'Physics'\n\n\
+ ___\n\n"
+                bot_message = "*I am a bot, and this action was performed automatically. \
+Please contact the* [*moderators of this subreddit*](http://www.reddit.com/message/compose?\
+to=%2Fr%2FAskScience&amp;message=My%20Post:%20http://redd.it/{}) *if you have any questions or concerns.*"\
 .format(post.id)
                 if not post.link_flair_text:
                     print("added flair comment: {}".format(post.id))
